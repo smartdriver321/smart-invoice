@@ -1,16 +1,17 @@
 'use server'
 
+import { redirect } from 'next/navigation'
 import { requireUser } from './utils/hooks'
 import { parseWithZod } from '@conform-to/zod'
-import { invoiceSchema, onboardingSchema } from './utils/zodSchemas'
+
 import prisma from './utils/db'
-import { redirect } from 'next/navigation'
+import baseURL from '@/lib/utils'
 import { emailClient } from './utils/mailtrap'
 import { formatCurrency } from './utils/formatCurrency'
+import { invoiceSchema, onboardingSchema } from './utils/zodSchemas'
 
 export async function onboardUser(prevState: any, formData: FormData) {
 	const session = await requireUser()
-
 	const submission = parseWithZod(formData, {
 		schema: onboardingSchema,
 	})
@@ -30,12 +31,11 @@ export async function onboardUser(prevState: any, formData: FormData) {
 		},
 	})
 
-	return redirect('/dashboard')
+	return redirect(`${baseURL}/dashboard`)
 }
 
 export async function createInvoice(prevState: any, formData: FormData) {
 	const session = await requireUser()
-
 	const submission = parseWithZod(formData, {
 		schema: invoiceSchema,
 	})
@@ -86,14 +86,11 @@ export async function createInvoice(prevState: any, formData: FormData) {
 				amount: submission.value.total,
 				currency: submission.value.currency as any,
 			}),
-			invoiceLink:
-				process.env.NODE_ENV !== 'production'
-					? `http://localhost:3000/api/invoice/${data.id}`
-					: `https://smart-invoice-eight.vercel.app/api/invoice/${data.id}`,
+			invoiceLink: `${baseURL}/api/invoice/${data.id}`,
 		},
 	})
 
-	return redirect('/dashboard/invoices')
+	return redirect(`${baseURL}/dashboard/invoices`)
 }
 
 export async function editInvoice(prevState: any, formData: FormData) {
@@ -152,19 +149,15 @@ export async function editInvoice(prevState: any, formData: FormData) {
 				amount: submission.value.total,
 				currency: submission.value.currency as any,
 			}),
-			invoiceLink:
-				process.env.NODE_ENV !== 'production'
-					? `http://localhost:3000/api/invoice/${data.id}`
-					: `https://smart-invoice-eight.vercel.app/api/invoice/${data.id}`,
+			invoiceLink: `${baseURL}/api/invoice/${data.id}`,
 		},
 	})
 
-	return redirect('/dashboard/invoices')
+	return redirect(`${baseURL}/dashboard/invoices`)
 }
 
-export async function DeleteInvoice(invoiceId: string) {
+export async function deleteInvoice(invoiceId: string) {
 	const session = await requireUser()
-
 	const data = await prisma.invoice.delete({
 		where: {
 			userId: session.user?.id,
@@ -172,12 +165,11 @@ export async function DeleteInvoice(invoiceId: string) {
 		},
 	})
 
-	return redirect('/dashboard/invoices')
+	return redirect(`${baseURL}/dashboard/invoices`)
 }
 
-export async function MarkAsPaidAction(invoiceId: string) {
+export async function markAsPaidAction(invoiceId: string) {
 	const session = await requireUser()
-
 	const data = await prisma.invoice.update({
 		where: {
 			userId: session.user?.id,
@@ -188,5 +180,5 @@ export async function MarkAsPaidAction(invoiceId: string) {
 		},
 	})
 
-	return redirect('/dashboard/invoices')
+	return redirect(`${baseURL}/dashboard/invoices`)
 }

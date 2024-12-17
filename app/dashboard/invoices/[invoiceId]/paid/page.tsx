@@ -11,7 +11,7 @@ import PaidGif from '@/public/paid-gif.gif'
 import Link from 'next/link'
 import { buttonVariants } from '@/components/ui/button'
 import { SubmitButton } from '@/app/components/SubmitButtons'
-import { MarkAsPaidAction } from '@/app/actions'
+import { markAsPaidAction } from '@/app/actions'
 import prisma from '@/app/utils/db'
 import { redirect } from 'next/navigation'
 import { requireUser } from '@/app/utils/hooks'
@@ -57,7 +57,7 @@ export default async function MarkAsPaid({ params }: { params: Params }) {
 					<form
 						action={async () => {
 							'use server'
-							await MarkAsPaidAction(invoiceId)
+							await markAsPaidAction(invoiceId)
 						}}
 					>
 						<SubmitButton text='Mark ad Paid!' />
